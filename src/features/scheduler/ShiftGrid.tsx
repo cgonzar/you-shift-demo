@@ -10,7 +10,7 @@ import {
 	SHIFTS,
 	getAssignmentsForDay,
 } from "./domain";
-import { GripVertical, X, Plus, Calendar } from "lucide-react";
+import { X, Plus, Calendar } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -35,8 +35,8 @@ export const ShiftGrid = memo(function ShiftGrid({
 	const getHighlightClass = (severity: Severity | null) => {
 		if (!severity) return "";
 		return severity === "error"
-			? "bg-red-50 dark:bg-red-900/20 border-2 border-red-500"
-			: "bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-500";
+			? "bg-red-100/80 border-red-400 dark:bg-red-500/20 dark:border-red-500/50"
+			: "bg-amber-100/80 border-amber-400 dark:bg-amber-500/20 dark:border-amber-500/50";
 	};
 
 	const highlightClass = getHighlightClass(activeIssueSeverity);
@@ -173,9 +173,22 @@ const ShiftCell = memo(function ShiftCell({
 		}
 	};
 
-	const handleRemove = (e?: React.MouseEvent | React.KeyboardEvent) => {
-		e?.stopPropagation();
+	const handleRemove = (e: React.MouseEvent | React.KeyboardEvent) => {
+		e.stopPropagation();
+		e.preventDefault();
 		onAssign(key, null);
+	};
+
+	const handleRemoveKeydown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" || e.key === " ") {
+			handleRemove(e);
+		}
+	};
+
+	const handleButtonClick = () => {
+		if (!value) {
+			setIsDialogOpen(true);
+		}
 	};
 
 	const handleSelectEmployee = (employee: Employee) => {
@@ -199,15 +212,14 @@ const ShiftCell = memo(function ShiftCell({
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 			<button
 				type="button"
-				disabled={!!value}
-				onClick={() => !value && setIsDialogOpen(true)}
+				onClick={handleButtonClick}
 				onKeyDown={handleKeyDown}
 				onDragOver={handleDragOver}
 				onDrop={handleDrop}
 				className={cn(
 					"relative flex h-18 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/40 bg-card p-2 transition-all duration-200",
-					highlighted ? highlightClass : "hover:border-primary/20 hover:bg-muted/30",
-					value ? "cursor-grab border-solid border-border bg-card/50" : "cursor-pointer"
+					value ? "cursor-grab border-solid border-border bg-card/50" : "cursor-pointer",
+					highlighted ? highlightClass : "hover:border-primary/20 hover:bg-muted/30"
 				)}
 			>
 				{value ? (
@@ -227,17 +239,12 @@ const ShiftCell = memo(function ShiftCell({
 								role="button"
 								tabIndex={0}
 								onClick={handleRemove}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" || e.key === " ") {
-										e.preventDefault();
-										handleRemove(e as unknown as React.MouseEvent);
-									}
-								}}
+								onKeyDown={handleRemoveKeydown}
 								className="mr-1 flex cursor-pointer items-center rounded-md p-1 text-muted-foreground/40 transition-colors hover:bg-destructive/10 hover:text-destructive"
+								aria-label="Remove employee"
 							>
 								<X className="h-4 w-4" />
 							</span>
-							<GripVertical className="h-4 w-4 cursor-grab text-muted-foreground/40" />
 						</span>
 					</span>
 				) : (
@@ -256,14 +263,12 @@ const ShiftCell = memo(function ShiftCell({
 					</DialogDescription>
 				</DialogHeader>
 
-				<div className="flex max-h-[300px] flex-col gap-2 overflow-y-auto py-2">
+				<div className="flex max-h-75 flex-col gap-2 overflow-y-auto py-2">
 					{employeeShiftCounts.map(
 						({ employee, shiftsToday, totalWeekShifts, isAssignedToday }) => (
-							<button
+							<span
 								key={employee}
-								type="button"
 								onClick={() => handleSelectEmployee(employee)}
-								disabled={isAssignedToday}
 								className={cn(
 									"flex items-center justify-between rounded-lg border p-3 transition-all hover:border-primary/50 hover:bg-muted/50",
 									isAssignedToday && "cursor-not-allowed bg-muted/30 opacity-50"
@@ -287,7 +292,7 @@ const ShiftCell = memo(function ShiftCell({
 									</div>
 									<span className="text-muted-foreground">{totalWeekShifts}/5 week</span>
 								</div>
-							</button>
+							</span>
 						)
 					)}
 				</div>

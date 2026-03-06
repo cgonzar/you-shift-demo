@@ -156,8 +156,7 @@ function IssueCard({ issue, isActive, onSelect, onQuickFix }: IssueCardProps) {
 
 					{canAutoFix && onQuickFix && (
 						<div className="pt-2">
-							<button
-								type="button"
+							<span
 								onClick={(e) => {
 									e.stopPropagation();
 									onQuickFix(issue);
@@ -166,7 +165,7 @@ function IssueCard({ issue, isActive, onSelect, onQuickFix }: IssueCardProps) {
 							>
 								<Wand2 className="h-3.5 w-3.5" />
 								Auto-Resolve (Clear Shifts)
-							</button>
+							</span>
 						</div>
 					)}
 				</div>

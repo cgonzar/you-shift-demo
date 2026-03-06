@@ -21,7 +21,7 @@ if (!root) throw new Error("Root element not found");
 
 createRoot(root).render(
 	<StrictMode>
-		<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+	<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
 			<RouterProvider router={router} />
 		</ThemeProvider>
 	</StrictMode>
